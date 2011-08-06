@@ -2,9 +2,9 @@ CodeIgniter YAML Forge
 ======================
 This library aims to generate database schemas from a basic YAML defined schema. I find YAML notation a lot easier to read/and write than verbose SQL scripts or $this->dbforge->add_field( ... ) and I'm hoping this abtraction will save me some time and some keystrokes. It utilizes the Symfony YAML libraries and the dbforge library found in CodeIgniter for the schema generation.
 
-This is just a first draft of the idea which I cooked up today... I've designed it with my own conventions in mind and the fact that I use WanWizard's DataMapper ORM should be kept in mind.
+This is just a first draft of the idea which I cooked up today... I've designed it with my own conventions and the fact that I use WanWizard's DataMapper ORM should be kept in mind.
 
-Currently the schema design:
+Currently the schema supports:
 * Creates tables
 * Creates fields
 * Automagically adds relationship fields and tables (based on the DataMapper ORM convention)
@@ -12,7 +12,7 @@ Currently the schema design:
 Documentation
 -------------
 
-This example controller defines the basic usage:
+This example controller shows the basic usage:
 
     class Test_yaml_forge extends CI_Controller {
     
