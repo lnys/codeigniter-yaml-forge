@@ -5,9 +5,9 @@ This library aims to generate database schemas from a basic YAML defined schema.
 This is just a first draft of the idea which I cooked up today... I've designed it with my conventions in mind (I use WanWizard's DataMapper ORM). More features and more customizable options will be included as and when the need arises.
 
 Currently the library can do the following:
- * Create tables
- * Create fields
- * Automagically add relationship fields and tables (based on the DataMapper ORM conventions)
+*   Create tables
+*   Create fields
+*   Automagically add relationship fields and tables (based on the DataMapper ORM conventions)
 
 Documentation
 -------------
