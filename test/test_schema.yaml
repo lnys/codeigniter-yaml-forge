@@ -20,3 +20,8 @@
   name:
     type: varchar
     constraint: 255
+  body:
+    type: text
+  date_created:
+    type: datetime
+  date_updated: "TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP"

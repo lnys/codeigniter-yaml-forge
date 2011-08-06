@@ -131,6 +131,12 @@ class Yaml_forge {
 					$this->dbforge->add_field('id');
 					continue;
 				}
+
+				if( ! is_array($field) )
+				{
+					$this->dbforge->add_field($name ." ". $field);
+					continue;
+				}
 				
 				if( ! isset($field['type']))
 				{
