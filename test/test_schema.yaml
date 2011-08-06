@@ -1,0 +1,22 @@
+# Test Schema for Yaml_forge
+
+"users":
+  first_name: 
+    type: varchar
+    constraint: 255
+  last_name:
+    type: varchar
+    constraint: 255
+
+"categories":
+  has_many: [posts]
+  name:
+    type: varchar
+    constraint: 255
+
+"posts":
+  has_many: [categories]
+  has_one: [users]
+  name:
+    type: varchar
+    constraint: 255
