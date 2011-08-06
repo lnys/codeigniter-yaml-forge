@@ -17,6 +17,7 @@ class Yaml_forge {
 		$this->CI->load->dbforge();
 		$this->CI->load->spark('yaml/1.0.0');
 
+		$this->db =& $this->CI->db;
 		$this->yaml =& $this->CI->yaml;
 		$this->dbforge =& $this->CI->dbforge;
 	}
@@ -53,11 +54,18 @@ class Yaml_forge {
 
 		if($this->debug) print_r($this->yaml_arr);
 
-		foreach($this->yaml_arr as $table => $fields)
+		foreach($this->yaml_arr as $table => $defs)
 		{
 			if($this->drop_tables)
 			{
-				$this->dbforge->drop_table($table);
+				if(isset($table['fields']))
+				{
+					$this->dbforge->drop_table($table);
+				}
+				elseif(isset($table['data']))
+				{
+					$this->dbforge->truncate_table($table);
+				}
 			}
 
 			if($this->auto_id)
@@ -65,47 +73,46 @@ class Yaml_forge {
 				$this->dbforge->add_field('id');
 			}
 
-			foreach($fields as $name => $field)
+			if(isset($defs['has_many']))
 			{
-				if($name == 'has_many')
+				foreach($defs['has_many'] as $rel_table)
 				{
-					foreach($field as $rel_table)
-					{
-						$sort_arr = array($table, $rel_table);
-						sort($sort_arr);
-						$_table = $sort_arr[0]."_".$sort_arr[1];
+					$sort_arr = array($table, $rel_table);
+					sort($sort_arr);
+					$_table = $sort_arr[0]."_".$sort_arr[1];
 
-						$this->has_many[$_table] = array(
-							singular($table) . "_id" => array(
-								'type' => 'INT',
-								'unsigned' => TRUE
-							),
+					$this->has_many[$_table] = array(
+						singular($table) . "_id" => array(
+							'type' => 'INT',
+							'unsigned' => TRUE
+						),
+						singular($rel_table) . "_id" => array(
+							'type' => 'INT',
+							'unsigned' => TRUE
+						)
+					);
+				}
+			}
+
+			if(isset($defs['has_one']))
+			{
+				foreach($defs['has_one'] as $rel_table)
+				{
+					$this->dbforge->add_field(
+						array(
 							singular($rel_table) . "_id" => array(
 								'type' => 'INT',
 								'unsigned' => TRUE
 							)
-						);
-					}
-
-					continue;
+						)
+					);
 				}
+			}
 
-				if($name == 'has_one')
-				{
-					foreach($field as $rel_table)
-					{
-						$this->dbforge->add_field(
-							array(
-								singular($rel_table) . "_id" => array(
-									'type' => 'INT',
-									'unsigned' => TRUE
-								)
-							)
-						);
-					}
-					
-					continue;
-				}
+			$fields = isset($defs['fields']) ? $defs['fields'] : array();
+
+			foreach($fields as $name => $field)
+			{
 
 				if($this->auto_id == TRUE AND $name == 'id')
 				{
@@ -120,6 +127,13 @@ class Yaml_forge {
 
 				if( ! is_array($field) )
 				{
+					$field = preg_replace('/^(varchar|char):([0-9]{1,3})$/', '$1($2)', $field);
+
+					if($field == 'int')
+					{
+						$field .= " unsigned";
+					}
+
 					$this->dbforge->add_field($name ." ". $field);
 					continue;
 				}
@@ -134,9 +148,45 @@ class Yaml_forge {
 				$this->dbforge->add_field(
 					array($name => $field)
 				);
+
 			}
 
+			// Finally, create the table
 			$this->dbforge->create_table($table, TRUE);
+
+			// insert data
+			$data = isset($defs['data']) ? $defs['data'] : array();
+
+			// Deal with data
+			if( is_array($data) )
+			{
+				$insert = array();
+
+				foreach($data as $d_id => $d)
+				{
+					
+					$columns = $this->db->list_fields($table);
+
+					foreach($columns as $i => $k)
+					{
+						if($k == 'id')
+						{
+							unset($columns[$i]);
+							$insert['id'] = $d_id;
+						}
+					}
+
+					foreach($columns as $i => $k)
+					{
+						if(isset($d[$i]))
+						{
+							$insert[$k] = $d[$i];
+						}
+					}
+
+					$this->db->insert($table, $insert);
+				}
+			}
 
 			// Create the "has many" tables
 			if( ! empty($this->has_many))

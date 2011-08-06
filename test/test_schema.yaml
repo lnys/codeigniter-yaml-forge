@@ -1,27 +1,28 @@
 # Test Schema for Yaml_forge
 
 "users":
-  first_name: 
-    type: varchar
-    constraint: 255
-  last_name:
-    type: varchar
-    constraint: 255
+  fields:
+    first_name: varchar:127
+    last_name: varchar:127
+    date_joined: datetime
+    an_integer: int
+  data:
+    1: [Stephen, Frank, '2011-01-01 00:00:00', 123]
+    2: [Sthen, Frank, '2011-01-01 00:00:00', 123]
 
 "categories":
   has_many: [posts]
-  name:
-    type: varchar
-    constraint: 255
+  fields:
+    name: varchar:255
 
 "posts":
   has_many: [categories]
   has_one: [users]
-  name:
-    type: varchar
-    constraint: 255
-  body:
-    type: text
-  date_created:
-    type: datetime
-  date_updated: "TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+  fields:
+    title: varchar:127
+    body: text
+    date_created: datetime
+    date_updated: timestamp
+  data:
+    1: [1, "Some name", "Ooh its the body", '2011-01-01 00:00:00']
+    2: [1, "Some name", "Ooh another body field", '2011-01-01 00:00:00']
