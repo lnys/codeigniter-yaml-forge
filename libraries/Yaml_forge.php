@@ -14,9 +14,10 @@ class Yaml_forge {
 		$this->CI =& get_instance();
 		$this->CI->load->helper('file');
 		$this->CI->load->helper('inflector');
-		$this->CI->load->library('sfYamlParser');
 		$this->CI->load->dbforge();
+		$this->CI->load->spark('yaml/1.0.0');
 
+		$this->yaml =& $this->CI->yaml;
 		$this->dbforge =& $this->CI->dbforge;
 	}
 
@@ -37,23 +38,8 @@ class Yaml_forge {
 
 	function parse( $path )
 	{
-		$this->yaml_arr = FALSE;
-
-		try
-		{
-			$this->yaml_file = read_file( $path );
-			if( ! $this->yaml_file )
-			{
-				exit('Could not read yaml file: ' . $path);
-			}
-
-			$this->yaml_arr = $this->CI->sfyamlparser->parse($this->yaml_file);
-		}
-		catch (InvalidArgumentException $e)
-		{
-			// an error occurred during parsing
-			echo "Unable to parse the YAML string: ".$e->getMessage();
-		}
+		$this->yaml_file = read_file( $path );
+		$this->yaml_arr = $this->yaml->parse_string($this->yaml_file);
 
 		return $this->yaml_arr;
 	}
