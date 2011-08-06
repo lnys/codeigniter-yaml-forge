@@ -12,11 +12,8 @@ Currently the library can do the following:
 
 Documentation
 -------------
-Don't forget to install the Yaml spark:
 
-    php tools/spark install -v1.0.0 yaml
-
-And (this) YAML Forge spark:
+Install (this) YAML Forge spark:
 
     php tools/spark install -v0.0.1 yaml-forge
 
