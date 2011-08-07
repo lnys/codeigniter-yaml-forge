@@ -50,6 +50,12 @@
     email:
       type: varchar
       constraint: 127
+  
+  # add some extra columns (note: operation does not support shorthand notation)
+  columns:
+    email_2:
+      type: varchar
+      constraint: 127
 
   # data:
   data:
