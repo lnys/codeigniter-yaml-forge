@@ -1,28 +1,93 @@
 # Test Schema for Yaml_forge
+#
+# Operations:
+# fields
+# key/s
+# drop_column/s
+# modify_columns
+# data
 
+# Tables are declared
 "users":
+
+  # a number of operations can be done on this table
+  
+  # fields: adding this operation will drop and create the table with the fields specified
   fields:
-    first_name: varchar:127
-    last_name: varchar:127
+
+    # Shorthand notation:
+    # varchar|255, char|16, int, text, datetime, timestamp
+    # or any mysql long form notation can be used if necessary "VARCHAR(255) NOT NULL DEFAULT 'some default'"
+    first_name: varchar|127
+    
+    # Long form notation:
+    # an array of parameters is used, these are identical to the dbforge parameters
+    last_name:
+      type: varchar
+      constraint: 127
+      default: 'Foobar'
+
     date_joined: datetime
     an_integer: int
-  data:
-    1: [Stephen, Frank, '2011-01-01 00:00:00', 123]
-    2: [Sthen, Frank, '2011-01-01 00:00:00', 123]
+    an_unwanted_column: text
+    an_unwanted_column_2: text
+    an_unwanted_column_3: text
+    email: varchar|127
 
+  #keys
+  # a single key can be added
+  key: email
+
+  # or many keys in an array
+  keys: [first_name, last_name]
+
+  # drop columns
+  drop_column: an_unwanted_column
+  drop_columns: [an_unwanted_column_2, an_unwanted_column_3]
+
+  # modify some columns (note: operation does not support shorthand notation)
+  modify_columns:
+    email:
+      type: varchar
+      constraint: 127
+  
+  # add some extra columns (note: operation does not support shorthand notation)
+  columns:
+    email_2:
+      type: varchar
+      constraint: 127
+
+  # data:
+  data:
+
+    # data is formatted as an array where the key corresponds to the 'id' field
+    # Shorthand:
+    # array values must correspond the the column order
+    1: [Stephen, Frank, '2011-01-01 00:00:00', 123]
+
+    # Long form:
+    # more robust, more typing
+    2: 
+      first_name: Stephen
+      email: email@example.com
+
+# has_many:
+# this table has a has_many relationship
 "categories":
+  # this will create an additional table called "categories_posts" containing the fields id, category_id, post_id
   has_many: [posts]
   fields:
-    name: varchar:255
+    name: varchar|255
+
+# has_one:
+# this table has a has_one relationship
+# an in-table foreign key will be created
+# called "user_id"
 
 "posts":
-  has_many: [categories]
   has_one: [users]
   fields:
-    title: varchar:127
+    title: varchar|127
     body: text
     date_created: datetime
     date_updated: timestamp
-  data:
-    1: [1, "Some name", "Ooh its the body", '2011-01-01 00:00:00']
-    2: [1, "Some name", "Ooh another body field", '2011-01-01 00:00:00']
