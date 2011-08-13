@@ -3,14 +3,13 @@
 /**
  * YAML Forge Class
  *
- * Generates tables based on YAML schemas
+ * Generates database tables based on YAML schemas using dbforge for CodeIgniter
  *
- * @license 	MIT License
- * @package		YAML Forge
- * @category	YAML Forge
- * @author  	Stephen Frank
- * @link		https://github.com/stephenfrank/codeigniter-yaml-forge
- * @version 	0.1.1
+ * @license     MIT License
+ * @package     YAML Forge
+ * @author      Stephen Frank
+ * @link        https://github.com/stephenfrank/codeigniter-yaml-forge
+ * @version     0.1.1
  */
 class Yaml_forge {
 

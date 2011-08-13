@@ -74,8 +74,8 @@ Changelog
 
  * Data operation will now serialize nested arrays
  * Added a join_table_prefix setting
- * Added a drop_tables operation
- * Added a truncate_tables operation
+ * Added a drop_table operation
+ * Added a truncate_table operation
  * Fixed a critical bug in the has_many table creation (I hope no-one was using it because it didn't work)
  * Now with phpdoc comments
  * Added the typical disclaimer
