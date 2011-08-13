@@ -35,13 +35,14 @@ This example controller shows the basic usage:
             $this->yaml_forge->set_debug(TRUE);       // debug: verbose output, FALSE by default
             $this->yaml_forge->set_auto_id(TRUE);     // auto_id: adds an 'id' field to each table, TRUE by default
             $this->yaml_forge->set_drop_tables(TRUE); // drop_tables: drops a table before creating, FALSE by default
+			$this->yaml_forge->set_join_table_prefix('join_'); // join_table_prefix: adds a table prefix to join tables, empty by default
 
             $this->yaml_forge->generate( APPPATH . '../sparks/yaml-forge/0.1.1/test/test_schema.yaml' );
         }
     }
 
 Write some YAML that describes your schema (look at ./tests/text_schema.yaml
-for a more detailed explanation):
+for a more detailed explanation of all features):
 
     "users":
       has_one: [user_group]
