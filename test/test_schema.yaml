@@ -33,6 +33,7 @@
     an_unwanted_column_2: text
     an_unwanted_column_3: text
     email: varchar|127
+    settings: text
 
   #keys
   # a single key can be added
@@ -57,6 +58,11 @@
       type: varchar
       constraint: 127
 
+  # truncate table
+  # This would be important if the table existed and all we wanted to do was
+  # truncate it and fill with data... pointless in this example
+  truncate_table: true
+   
   # data:
   data:
 
@@ -70,6 +76,12 @@
     2: 
       first_name: Stephen
       email: email@example.com
+      settings:
+        # this nested data will get serialized, cool huh?
+        never_gonna_give_you_up: true
+        never_gonna_let_you_down: true
+        never_gonna_turn_around_and_hurt_you: 'true'
+        
 
 # has_many:
 # this table has a has_many relationship
@@ -91,3 +103,12 @@
     body: text
     date_created: datetime
     date_updated: timestamp
+
+
+"unwanted_table":
+  fields:
+    column_1: text
+  # drop table operation
+  # important if the 'drop_tables' setting was turned off
+  drop_table: true
+  

@@ -18,9 +18,11 @@ Currently the library can do the following:
 Documentation
 -------------
 
+You can use Sparks (getsparks.org) or just download the library into your CI application/libraries folder.
+
 Install (this) YAML Forge spark:
 
-    php tools/spark install -v0.1.0 yaml-forge
+    php tools/spark install -v0.1.1 yaml-forge
 
 This example controller shows the basic usage:
 
@@ -28,13 +30,13 @@ This example controller shows the basic usage:
     
         public function index()
         {
-            $this->load->spark('yaml-forge/0.1.0');
+            $this->load->spark('yaml-forge/0.1.1');
         
             $this->yaml_forge->set_debug(TRUE);       // debug: verbose output, FALSE by default
             $this->yaml_forge->set_auto_id(TRUE);     // auto_id: adds an 'id' field to each table, TRUE by default
             $this->yaml_forge->set_drop_tables(TRUE); // drop_tables: drops a table before creating, FALSE by default
 
-            $this->yaml_forge->generate( APPPATH . '../sparks/yaml-forge/0.1.0/test/test_schema.yaml' );
+            $this->yaml_forge->generate( APPPATH . '../sparks/yaml-forge/0.1.1/test/test_schema.yaml' );
         }
     }
 
@@ -68,10 +70,28 @@ for a more detailed explanation):
 
 Changelog
 ---------
-0.0.1 - 0.1.0
+0.1.0 -> 0.1.1
 
- * Almost everything is different, forget the first version :)
+ * Data operation will now serialize nested arrays
+ * Added a join_table_prefix setting
+ * Added a drop_tables operation
+ * Added a truncate_tables operation
+ * Fixed a critical bug in the has_many table creation (I hope no-one was using it because it didn't work)
+ * Now with phpdoc comments
+ * Added the typical disclaimer
+
+0.0.1 -> 0.1.0
+
+ * Almost everything is different, forget the first version
+
+0.0.1
+ 
+ * And then there was YAML Forge
 
 Contributing
 ------------
 Drop me a line if you use this library or have any thoughts about improvements. Contribution would also be great if you want to get down and dirty with my codes.
+
+Disclaimer
+----------
+Need it be said? This library is designed to perform operations on *databases*. You could lose data. You could wipe-out your work. Make backups and be careful. Enjoy.

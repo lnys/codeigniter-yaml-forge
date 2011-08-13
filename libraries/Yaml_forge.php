@@ -1,14 +1,63 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+/**
+ * YAML Forge Class
+ *
+ * Generates tables based on YAML schemas
+ *
+ * @license 	MIT License
+ * @package		YAML Forge
+ * @category	YAML Forge
+ * @author  	Stephen Frank
+ * @link		https://github.com/stephenfrank/codeigniter-yaml-forge
+ * @version 	0.1.1
+ */
 class Yaml_forge {
 
-	var $debug = TRUE;
-	var $yaml_file;
-	var $yaml_arr;
+	/**
+	 * Debug setting
+	 * TRUE, outputs debug info, FALSE, all is quiet
+	 * @var boolean 
+	 */
+	protected $debug = TRUE;
+	
+	/**
+	 * Holds the contents of the file
+	 * @var string
+	 */
+	public $yaml_file;
+	
+	/**
+	 * Holds the parsed array structure
+	 * @var array
+	 */
+	public $yaml_arr;
 
-	var $auto_id = TRUE;
-	var $drop_tables = TRUE;
+	/**
+	 * Auto Id setting
+	 * TRUE, 'id' columns are added to every table
+	 * @var boolean
+	 */
+	protected $auto_id = TRUE;
+	
+	/**
+	 * Drop tables setting
+	 * TRUE, tables are dropped before 'fields' operation is run
+	 * @var boolean
+	 */
+	protected $drop_tables = TRUE;
 
+	/**
+	 * Join table prefix setting
+	 * Prefixes any 'has_many' tables with this string
+	 * @var string
+	 */
+	protected $join_table_prefix = '';
+	
+	/**
+	 * Construct
+	 * Loads and binds dependant libraries
+	 */
 	public function __construct()
 	{
 		$this->CI =& get_instance();
@@ -22,21 +71,48 @@ class Yaml_forge {
 		$this->dbforge =& $this->CI->dbforge;
 	}
 
+	/**
+	 * Sets debug setting
+	 * @param boolean $bool
+	 */
 	public function set_debug($bool)
 	{
-		$this->debug = $bool;
+		$this->debug = (bool) $bool;
 	}
 
+	/**
+	 * Sets Auto Id setting
+	 * @param boolean $bool
+	 */
 	public function set_auto_id($bool)
 	{
-		$this->auto_id = $bool;
+		$this->auto_id = (bool) $bool;
 	}
 
+	/**
+	 * Sets debug setting
+	 * @param boolean $bool
+	 */
 	public function set_drop_tables($bool)
 	{
-		$this->drop_tables = $bool;
+		$this->drop_tables = (bool) $bool;
 	}
 
+	/**
+	 * Sets join table prefix setting
+	 * @param boolean $bool
+	 */
+	public function set_join_table_prefix($string)
+	{
+		$this->join_table_prefix = (string) $string;
+	}
+
+	/**
+	 * Parse file
+	 * Parses the YAML found at $path
+	 * @param string $path
+	 * @return array
+	 */
 	public function parse( $path )
 	{
 		$this->yaml_file = read_file( $path );
@@ -45,6 +121,13 @@ class Yaml_forge {
 		return $this->yaml_arr;
 	}
 
+	/**
+	 * Generate schema
+	 * Where all the magic happens. Bada bing...
+	 * Parses YAML and runs operation methods
+	 * @param string $path
+	 * @return void
+	 */
 	public function generate( $path )
 	{
 		if( ! $this->parse( $path ) )
@@ -56,8 +139,22 @@ class Yaml_forge {
 
 		foreach($this->yaml_arr as $table_name => $operations)
 		{
-			// some operations depend on order being maintained
-			$operations_order = array('fields', 'has_one', 'has_many', 'key', 'keys', 'column', 'columns', 'drop_column', 'drop_columns', 'modify_columns', 'data');
+			// order being maintained is important
+			$operations_order = array(
+				'drop_table',
+				'fields',
+				'has_one',
+				'has_many',
+				'column',
+				'columns',
+				'modify_columns',
+				'key',
+				'keys',
+				'drop_column',
+				'drop_columns',
+				'truncate_table',
+				'data'
+			);
 
 			// be helpful and display and operations not permitted
 			foreach($operations as $op_name => $ops)
@@ -88,6 +185,12 @@ class Yaml_forge {
 
 	}
 
+	/**
+	 * Add data
+	 * Parses data arrays and inserts them into $table
+	 * @param string $table
+	 * @param array $data 
+	 */
 	private function add_data($table, $data)
 	{
 		// Deal with data
@@ -113,6 +216,10 @@ class Yaml_forge {
 			if($is_assoc)
 			{
 				$d['id'] = $d_id;
+				
+				// serialize nested arrays
+				foreach($d as $k => & $v) if(is_array($v)) $v = serialize($v);
+				
 				$this->db->insert($table, $d);
 				continue;
 			}
@@ -145,6 +252,12 @@ class Yaml_forge {
 		}
 	}
 
+	/**
+	 * Add 'has one' relationship
+	 * Adds multiple *_id columns for in-table foreign key use
+	 * @param string $table
+	 * @param array $ops 
+	 */
 	private function add_has_one($table, $ops)
 	{
 		if( is_string($ops))
@@ -166,6 +279,12 @@ class Yaml_forge {
 		}
 	}
 
+	/**
+	 * Add fields operation
+	 * Parses field options and creates tables
+	 * @param string $table
+	 * @param array $ops 
+	 */
 	private function add_fields($table, $ops)
 	{
 		if($this->drop_tables)
@@ -196,7 +315,7 @@ class Yaml_forge {
 			{
 				$field = preg_replace('/^(varchar|char)\|([0-9]{1,3})$/', '$1($2)', $field);
 
-				if($field == 'int')
+				if($field == 'int') // automatically make INT fields unsigned
 				{
 					$field .= " unsigned";
 				}
@@ -217,10 +336,17 @@ class Yaml_forge {
 			);
 
 		}
+		
 		// Finally, create the table
 		$this->dbforge->create_table($table, TRUE);
 	}
 
+	/**
+	 * Add columns operation
+	 * Adds columns to an existing table
+	 * @param string $table
+	 * @param array $ops 
+	 */
 	private function add_columns($table, $ops)
 	{
 		foreach($ops as $name => $field)
@@ -232,6 +358,12 @@ class Yaml_forge {
 		}
 	}
 
+	/**
+	 * Modify columns operation
+	 * Modifies existing columns
+	 * @param string $table
+	 * @param array $ops 
+	 */
 	private function add_modify_columns($table, $ops)
 	{
 		foreach($ops as $name => $field)
@@ -243,6 +375,12 @@ class Yaml_forge {
 		}
 	}
 
+	/**
+	 * Add keys operation
+	 * @see add_keys()
+	 * @param string $table
+	 * @param string $ops 
+	 */
 	private function add_key($table, $ops)
 	{
 		if(is_string($ops))
@@ -253,6 +391,12 @@ class Yaml_forge {
 		$this->add_keys($table, $ops);
 	}
 
+	/**
+	 * Add keys operation
+	 * Add standard indexes/keys to existing columns
+	 * @param string $table
+	 * @param string $ops 
+	 */
 	private function add_keys($table, $ops)
 	{
 		foreach($ops as $key_name)
@@ -262,6 +406,12 @@ class Yaml_forge {
 		}
 	}
 
+	/**
+	 * Drop column operation
+	 * @see add_drop_columns()
+	 * @param string $table
+	 * @param string $ops 
+	 */
 	private function add_drop_column($table, $ops)
 	{
 		if( is_string($ops) )
@@ -272,6 +422,11 @@ class Yaml_forge {
 		$this->add_drop_columns($table, $ops);
 	}
 
+	/**
+	 * Drop columns operation
+	 * @param string $table
+	 * @param array $ops 
+	 */
 	private function add_drop_columns($table, $ops)
 	{
 		foreach($ops as $column)
@@ -280,6 +435,12 @@ class Yaml_forge {
 		}
 	}
 
+	/**
+	 * Add 'has many' relationships operation
+	 * Creates a 'join' table for many to many relationships
+	 * @param string $table
+	 * @param array $ops 
+	 */
 	private function add_has_many($table, $ops)
 	{
 		if( is_string($ops) )
@@ -291,7 +452,7 @@ class Yaml_forge {
 		{
 			$sort_arr = array($table, $rel_table);
 			sort($sort_arr);
-			$_table = $sort_arr[0]."_".$sort_arr[1];
+			$_table = $this->join_table_prefix . $sort_arr[0]."_".$sort_arr[1];
 
 			$this->dbforge->add_field('id');
 			$this->dbforge->add_field(array(
@@ -307,11 +468,38 @@ class Yaml_forge {
 			);
 
 			// Create the "has many" tables
-			$this->dbforge->create_table($table, TRUE);
+			$this->dbforge->create_table($_table, TRUE);
 		}
 
+	}
+	
+	/**
+	 * Drop tables operation
+	 * Drops the table... cause we're gangsta like that
+	 * @param string $table
+	 * @param boolean $ops 
+	 */
+	private function add_drop_table($table, $ops)
+	{
+		if($ops)
+		{
+			$this->dbforge->drop_table($table);		
+		}
+	}
 
-
+	/**
+	 * Truncate tables operation
+	 * Truncates the table
+	 * @param string $table
+	 * @param boolean $ops 
+	 */
+	private function add_truncate_table($table, $ops)
+	{
+		if($ops)
+		{
+			// dbforge *doesn't* have a truncate function?!
+			$this->db->query("TRUNCATE `$table`");
+		}
 	}
 
 }
