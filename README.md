@@ -89,9 +89,17 @@ Changelog
  
  * And then there was YAML Forge
 
+Feedback
+--------
+If you've used this library then please drop me a line and let me know
+your experiences... I especially want to know if it a) worked and b) did
+what you wanted it to do. I'd be thrilled to hear for you. You can beam
+a twittertube to me @stephenfrank, message me here or even email me
+stephen@flowsa.com .
+
 Contributing
 ------------
-Drop me a line if you use this library or have any thoughts about improvements. Contribution would also be great if you want to get down and dirty with my codes.
+Contribution would also be great if you want to get down and dirty with my codes.
 
 Disclaimer
 ----------
