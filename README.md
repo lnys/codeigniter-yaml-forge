@@ -1,5 +1,8 @@
 CodeIgniter YAML Forge
 ======================
+
+[***No longer maintained... I'm sure it still works though***]
+
 This library aims to generate database schemas from a basic YAML defined schema. I find YAML notation a lot easier to read/and write than verbose SQL scripts or $this->dbforge->add_field( ... ) and I'm hoping this abstraction will save me some time and some keystrokes. This spark depends on Dan Horrigan's CodeIgniter wrapper class for the Spyc Yaml library to parse the YAML and utilizes CodeIgniter's dbforge library to perform the database manipulation.
 
 I've designed it with my conventions in mind (I use WanWizard's DataMapper ORM) which means this might not be for everyone but please do take a look. More features and more customizable options will be included as and when the need arises.
